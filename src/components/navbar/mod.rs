@@ -16,6 +16,10 @@ pub fn NavBar() -> Element {
                     }
                     div {
                         class: "px-4 py-2 hover:bg-blue-700 justify-center",
+                        Link { to: Route::Contracts {}, "contracts" }
+                    }
+                    div {
+                        class: "px-4 py-2 hover:bg-blue-700 justify-center",
                         Link { to: Route::Home {}, "Create tickets" }
                     }
                     div {

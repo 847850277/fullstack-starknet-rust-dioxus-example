@@ -10,6 +10,13 @@ macro_rules! require_login {
                         class: "text",
                         "Please log in to view this page"
                     }
+                    p{}
+                    a {
+                        class: "bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded",
+                        href: "/login",
+                        "click to Login"
+                    }
+
                 }
             );
         }
@@ -21,6 +28,7 @@ pub mod login;
 pub mod navbar;
 pub mod tickets;
 pub mod page_not_found;
+pub mod contracts;
 
 pub use home::*;
 pub use login::*;

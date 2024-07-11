@@ -4,7 +4,7 @@ use crate::create_ticket;
 
 #[component]
 pub fn Home() -> Element {
-    //require_login!();
+    require_login!();
 
     let mut count = use_signal(|| 0);
     let mut text = use_signal(|| String::from("..."));

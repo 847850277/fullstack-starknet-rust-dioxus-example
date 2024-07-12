@@ -22,7 +22,7 @@ pub fn Login() -> Element {
                 *logged_in.write() = success;
                 //redirect
                 let nav = navigator();
-                nav.replace(Route::Contracts {});
+                nav.replace(Route::Eth {});
             }
 
             Err(e) => {

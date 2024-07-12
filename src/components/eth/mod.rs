@@ -1,8 +1,8 @@
 use dioxus::prelude::*;
 
 #[component]
-pub fn Contracts() -> Element {
-    require_login!();
+pub fn Eth() -> Element {
+    //require_login!();
 
     rsx! {
         div {

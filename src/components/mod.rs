@@ -28,7 +28,7 @@ pub mod login;
 pub mod navbar;
 pub mod tickets;
 pub mod page_not_found;
-pub mod contracts;
+pub mod eth;
 
 pub use home::*;
 pub use login::*;

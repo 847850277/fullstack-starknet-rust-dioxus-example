@@ -13,25 +13,6 @@ use starknet::signers::{LocalWallet, SigningKey};
 
 use crate::login;
 
-// #[server]
-// pub async fn login_page(username: String, password: String) -> Result<bool, ServerFnError> {
-//
-//     dbg!(username.clone());
-//     dbg!(password.clone());
-//     //TODO: 调用argent进行登录
-//
-//
-//     let id = login(username, password).await?;
-//
-//     dbg!(id.clone());
-//
-//     let auth: crate::auth::Session = extract().await?;
-//     auth.login_user(id);
-//
-//     Ok(true)
-// }
-
-
 #[server]
 pub async fn login_page(address: String, private_key: String) -> Result<bool, ServerFnError> {
     let provider = JsonRpcClient::new(HttpTransport::new(
@@ -49,11 +30,11 @@ pub async fn login_page(address: String, private_key: String) -> Result<bool, Se
 
         Ok(nonce) => {
             //把账号和密码缓存
-            let auth: crate::auth::Session = extract().await?;
-            let decimal = nonce.to_big_decimal(0);
-            let string = decimal.to_string();
-            let id = string.parse().unwrap();
-            auth.login_user(id);
+            // let auth: crate::auth::Session = extract().await?;
+            // let decimal = nonce.to_big_decimal(0);
+            // let string = decimal.to_string();
+            // let id = string.parse().unwrap();
+            // auth.login_user(id);
             Ok(true)
         }
         Err(e) => {

@@ -1,6 +1,5 @@
 use dioxus::prelude::*;
 
-use crate::create_ticket;
 
 #[component]
 pub fn Home() -> Element {
@@ -40,4 +39,8 @@ pub fn Home() -> Element {
             }
         }
     }
+}
+
+async fn create_ticket(p0: String, p1: String) {
+    todo!()
 }

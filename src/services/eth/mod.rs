@@ -1,38 +1,46 @@
 use dioxus::prelude::*;
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 
 
-#[derive(Deserialize, Debug)]
-struct Response {
-    address: String,
-    stateChangingFunctions: Vec<Function>,
+pub type GatewayResult<T> = Result<T, GatewayError>;
+
+#[derive(Debug, PartialEq, Eq, Clone, Copy)]
+pub enum GatewayError {
+    FailedDeserialization,
+    FailedAta,
+    FailedRegister,
+    TransactionTimeout,
+    NetworkUnavailable,
+    AccountNotFound,
+    // SimulationFailed,
+    RequestFailed,
+    ProgramBuilderFailed,
+    WalletAdapterDisconnected,
+    Unknown,
 }
 
-#[derive(Clone, serde::Deserialize, serde::Serialize, Debug)]
-pub struct Function{
-    selector: String,
-    name: String,
-    vec: Vec<param>
+#[derive(Serialize, Deserialize, Clone, Debug, PartialEq)]
+#[serde(rename_all = "camelCase")]
+pub struct UiTokenAmount {
+    pub decimals: u8,
+    pub name: String,
 }
 
-#[derive(Clone, serde::Deserialize, serde::Serialize, Debug)]
-pub struct param{
-    name: String,
-    #[serde(rename = "type")]
-    param_type: String,
+pub fn use_ore_supply() -> Resource<GatewayResult<UiTokenAmount>> {
+    use_resource(move || {
+        async move {
+            println!("use_ore_supply");
+            get_token_supply()
+                .await
+                .map_err(|_| GatewayError::Unknown)
+        }
+    })
 }
 
-#[server]
-pub async fn get_eth_write_fun(contract_address: String) -> Result<Function, ServerFnError> {
-
-    let response = reqwest::get("https://sepolia.voyager.online/api/contract/0x049d36570d4e46f48e99674bd3fcc84644ddd6b96f7c741b1562b82f9e004dc7/functions").await?;
-    let data: Response = response.json().await?;
-    // Placeholder return value
-    return Ok(Function {
-        selector: data.stateChangingFunctions[0].selector.clone(),
-        name: data.stateChangingFunctions[0].name.clone(),
-        //vec: data.stateChangingFunctions[0].parameters.clone(),
-        vec: vec![],
-    });
-
+async fn get_token_supply() -> Result<UiTokenAmount, GatewayError> {
+    // Replace this with the actual implementation
+    Ok(UiTokenAmount {
+        decimals: 18,
+        name: String::from("Test Token"),
+    })
 }

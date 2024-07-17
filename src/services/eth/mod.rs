@@ -1,46 +1,64 @@
 use dioxus::prelude::*;
 use serde::{Deserialize, Serialize};
+use reqwest::Error;
+use serde_json::json;
 
 
-pub type GatewayResult<T> = Result<T, GatewayError>;
-
-#[derive(Debug, PartialEq, Eq, Clone, Copy)]
-pub enum GatewayError {
-    FailedDeserialization,
-    FailedAta,
-    FailedRegister,
-    TransactionTimeout,
-    NetworkUnavailable,
-    AccountNotFound,
-    // SimulationFailed,
-    RequestFailed,
-    ProgramBuilderFailed,
-    WalletAdapterDisconnected,
-    Unknown,
+#[server]
+pub async fn get_server_data() -> Result<Contract, ServerFnError> {
+    let url = "https://sepolia.voyager.online/api/contract/0x049d36570d4e46f48e99674bd3fcc84644ddd6b96f7c741b1562b82f9e004dc7/functions";
+    let response = reqwest::get(url).await.map_err(|err| ServerFnError::new(err.to_string()))?;
+    let body = response.text().await.map_err(|err| ServerFnError::new(err.to_string()))?;
+    let contract: Contract = serde_json::from_str(&body).map_err(|err| ServerFnError::new(err.to_string()))?;
+    println!("{:?}", contract);
+    Ok(contract)
 }
 
-#[derive(Serialize, Deserialize, Clone, Debug, PartialEq)]
-#[serde(rename_all = "camelCase")]
-pub struct UiTokenAmount {
-    pub decimals: u8,
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct Contract {
+    pub address: String,
+    pub functions: Vec<Function>,
+    pub state_changing_functions: Option<Vec<StateChangingFunction>>,
+    pub abi: Vec<Abi>,
+    pub proxy_metadata: Option<ProxyMetadata>,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct Function {
+    pub selector: String,
     pub name: String,
+    pub parameters: Vec<Parameter>,
 }
 
-pub fn use_ore_supply() -> Resource<GatewayResult<UiTokenAmount>> {
-    use_resource(move || {
-        async move {
-            println!("use_ore_supply");
-            get_token_supply()
-                .await
-                .map_err(|_| GatewayError::Unknown)
-        }
-    })
+#[derive(Debug, Serialize, Deserialize)]
+pub struct StateChangingFunction {
+    pub selector: String,
+    pub name: String,
+    pub parameters: Vec<Parameter>,
 }
 
-async fn get_token_supply() -> Result<UiTokenAmount, GatewayError> {
-    // Replace this with the actual implementation
-    Ok(UiTokenAmount {
-        decimals: 18,
-        name: String::from("Test Token"),
-    })
+#[derive(Debug, Serialize, Deserialize)]
+pub struct Parameter {
+    pub name: String,
+    #[serde(rename = "type")]
+    pub param_type: String,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct Abi {
+    pub name: String,
+    #[serde(rename = "type")]
+    pub abi_type: String,
+    pub interface_name: Option<String>,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct ProxyMetadata {
+    pub proxy_address: String,
+    pub functions: Vec<String>,
+    pub state_changing_functions: Vec<String>,
+    pub abi: Vec<String>,
+    #[serde(rename = "type")]
+    pub metadata_type: String,
 }

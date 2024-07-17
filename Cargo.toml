@@ -7,27 +7,24 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-
-reqwest = { version = "0.11", features = ["json"] }
-serde = { version = "1.0.197", features = ["derive"] }
 # dioxus = { version = "0.5.1", features = ["fullstack", "router"] }
 # https://github.com/DioxusLabs/dioxus/issues/2343
 dioxus = { git = "https://github.com/DioxusLabs/dioxus", branch = "v0.5", features = ["fullstack", "router"] }
-tokio = { version = "1.37.0", features = ["rt", "sync"] }
-http = "1.1.0"
-axum = {version="0.7.5", optional=true}
-pwhash = {version="1.0.0", optional=true}
-starknet = "0.10.0"
-wasm-bindgen = { version = "0.2.91", optional = true }
-wasm-bindgen-futures = { version = "0.4.41", optional = true }
-wasm-logger = { version = "0.2.0", optional = true }
+serde = { version = "1.0.197", features = ["derive"] }
+
 # Debug
 tracing = "0.1.40"
 dioxus-logger = "0.5.0"
+simple_logger = "4.2.0"
+tracing-wasm = "0.2.1"
+tracing-subscriber = "0.3.17"
+reqwest = "0.11.18"
+starknet = "0.10.0"
+serde_json = "1.0.120"
 
 [features]
 default = []
-server = ["dioxus/axum","pwhash","axum"]
+server = ["dioxus/axum"]
 web = ["dioxus/web"]
 
 

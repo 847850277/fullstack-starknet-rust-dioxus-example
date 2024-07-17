@@ -1,19 +1,6 @@
 #![allow(non_snake_case, unused)]
-
-use std::sync::{Arc, Mutex};
-
-use dioxus::prelude::{
-    server_fn::middleware::{self, Layer},
-    *,
-};
-use tokio::sync::OnceCell;
-use tracing::{info, Level};
-mod error;
-
-
-#[cfg(feature = "server")]
-use pwhash::bcrypt;
-use tracing::metadata::LevelFilter;
+use dioxus::prelude::*;
+use serde::{Deserialize, Serialize};
 
 mod components;
 mod route;
@@ -26,7 +13,14 @@ use route::Route;
 
 fn main() {
     //wasm_logger::init(wasm_logger::Config::default());
-    dioxus_logger::init(Level::DEBUG).expect("failed to init logger");
+    //dioxus_logger::init(Level::DEBUG).expect("failed to init logger");
+
+    #[cfg(feature = "web")]
+    tracing_wasm::set_as_global_default();
+
+    #[cfg(feature = "server")]
+    tracing_subscriber::fmt::init();
+
     launch(App);
 }
 

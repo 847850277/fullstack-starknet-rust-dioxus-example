@@ -15,37 +15,52 @@ pub async fn get_server_data() -> Result<Contract, ServerFnError> {
 }
 
 
-#[derive(Debug, Serialize, Deserialize)]
+#[server]
+pub async fn call_read_function(name: String, selector: String) -> Result<Contract, ServerFnError>{
+
+    println!("name: {}, selector: {}", name, selector);
+    return Ok(Contract{
+        address: "".to_string(),
+        functions: vec![],
+        state_changing_functions: None,
+        abi: vec![],
+        proxy_metadata: None,
+    })
+}
+
+
+#[derive(Debug, Serialize, Deserialize,Clone)]
 pub struct Contract {
     pub address: String,
     pub functions: Vec<Function>,
+    #[serde(rename = "stateChangingFunctions")]
     pub state_changing_functions: Option<Vec<StateChangingFunction>>,
     pub abi: Vec<Abi>,
     pub proxy_metadata: Option<ProxyMetadata>,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize,Clone)]
 pub struct Function {
     pub selector: String,
     pub name: String,
     pub parameters: Vec<Parameter>,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize,Clone)]
 pub struct StateChangingFunction {
     pub selector: String,
     pub name: String,
     pub parameters: Vec<Parameter>,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize,Clone)]
 pub struct Parameter {
     pub name: String,
     #[serde(rename = "type")]
     pub param_type: String,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize,Clone)]
 pub struct Abi {
     pub name: String,
     #[serde(rename = "type")]
@@ -53,7 +68,7 @@ pub struct Abi {
     pub interface_name: Option<String>,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize,Clone)]
 pub struct ProxyMetadata {
     pub proxy_address: String,
     pub functions: Vec<String>,

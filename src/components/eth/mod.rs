@@ -21,22 +21,26 @@ pub fn Eth() -> Element {
                          h1 { "{value.address}" }
                          hr{}
                          hr{}
-                         h2 { " read Functions" }
+                         h2 {
+                            // text align center
+                            class: "text-center",
+                            "read Functions" }
                          ul {
                                 for (index, func) in functions.iter().enumerate() {
                                     li {
                                             button{
+                                                class: "bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded",
                                                 onclick: move |_| async move{
-                                                    //let nav = navigator();
-                                                    //nav.push(Route::FunctionDetail(func.clone()));
-                                                    //let nav = navigator();
-                                                    //nav.replace(Route::Login {});
                                                     let clone = copy_functions.read()[index].clone();
                                                     call_read_function(clone.name,clone.selector).await;
                                                 },
                                                 "{func.name}"
                                             }
-                                            p{"{func.selector}"}
+                                            p{
+                                                // border class
+                                                class: "border-2 border-gray-100",
+                                                br{}
+                                            }
                                     }
                                 }
                             }

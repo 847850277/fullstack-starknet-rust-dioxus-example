@@ -5,6 +5,7 @@ use serde::{Deserialize, Serialize};
 mod components;
 mod route;
 mod services;
+mod starknet;
 
 use components::{Home, Login, NavBar, Tickets};
 

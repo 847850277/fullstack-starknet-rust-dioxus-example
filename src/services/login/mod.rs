@@ -7,7 +7,8 @@ use starknet::providers::jsonrpc::HttpTransport;
 use starknet::providers::{JsonRpcClient, Provider};
 use starknet::accounts::{Account, ExecutionEncoding, SingleOwnerAccount,ConnectedAccount};
 use starknet::core::chain_id;
-use starknet::core::types::{BlockId, BlockTag, FieldElement};
+use starknet::core::types::{BlockId, BlockTag};
+use starknet::core::types::FieldElement;
 use starknet::signers::{LocalWallet, SigningKey};
 
 
@@ -23,6 +24,8 @@ pub async fn login_page(address: String, private_key: String) -> Result<bool, Se
         FieldElement::from_hex_be(&private_key).unwrap(),
     ));
     let address = FieldElement::from_hex_be(&address).unwrap();
+    //let address = felt!(&address);
+
     let account = SingleOwnerAccount::new(provider, signer, address, chain_id, ExecutionEncoding::New);
     let account_1 = Arc::new(account);
     let result = account_1.get_nonce().await;

@@ -2,6 +2,7 @@ use dioxus::prelude::*;
 use serde::{Deserialize, Serialize};
 use reqwest::Error;
 use serde_json::json;
+use tracing::info;
 
 
 #[server]
@@ -18,7 +19,11 @@ pub async fn get_server_data() -> Result<Contract, ServerFnError> {
 #[server]
 pub async fn call_read_function(name: String, selector: String) -> Result<Contract, ServerFnError>{
 
-    println!("name: {}, selector: {}", name, selector);
+    info!("Calling read function: {} with selector: {}", name, selector);
+    
+
+
+
     return Ok(Contract{
         address: "".to_string(),
         functions: vec![],

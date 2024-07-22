@@ -15,6 +15,7 @@ pub fn Eth() -> Element {
         Some(Ok(value)) => {
                 let functions = value.functions.clone();
                 let copy_functions = use_signal(|| functions.clone());
+                let contract_address = use_signal(|| value.address.clone());
                 rsx! {
                     div {
                      class: "space-y-4 justify-center",
@@ -32,7 +33,8 @@ pub fn Eth() -> Element {
                                                 class: "bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded",
                                                 onclick: move |_| async move{
                                                     let clone = copy_functions.read()[index].clone();
-                                                    call_read_function(clone.name,clone.selector).await;
+                                                    let contract_address = contract_address.read().clone();
+                                                    call_read_function(clone.name,contract_address).await;
                                                 },
                                                 "{func.name}"
                                             }

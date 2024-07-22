@@ -3,6 +3,11 @@ use serde::{Deserialize, Serialize};
 use reqwest::Error;
 use serde_json::json;
 use tracing::info;
+use starknet::core::types::FieldElement;
+use hex;
+use crate::my_starknet::provider::{create_jsonrpc_client, Network};
+use crate::my_starknet::contract::call_contract_read_function;
+
 
 
 #[server]
@@ -17,12 +22,18 @@ pub async fn get_server_data() -> Result<Contract, ServerFnError> {
 
 
 #[server]
-pub async fn call_read_function(name: String, selector: String) -> Result<Contract, ServerFnError>{
+pub async fn call_read_function(my_selector: String, contract_address: String) -> Result<Contract, ServerFnError>{
+    info!("call_read_function selector: {}, contract_address: {}", my_selector, contract_address);
+    // call the read contract function
+    let contract_address = FieldElement::from_hex_be(&contract_address)
+        .map_err(|err| ServerFnError::new(err.to_string()))?;
+    // change my_select string to hex in rust
+    let hex_string = hex::encode(my_selector);
+    let selector = FieldElement::from_hex_be(&hex_string)
+        .map_err(|err| ServerFnError::new(err.to_string()))?;
 
-    info!("Calling read function: {} with selector: {}", name, selector);
-    
-
-
+    let response = call_contract_read_function(create_jsonrpc_client(Network::Testnet), contract_address, selector,vec![]).await;
+    dbg!(response);
 
     return Ok(Contract{
         address: "".to_string(),

@@ -1286,7 +1286,6 @@ version = "0.1.0"
 dependencies = [
  "dioxus",
  "dioxus-logger",
- "hex",
  "reqwest",
  "serde",
  "serde_json",

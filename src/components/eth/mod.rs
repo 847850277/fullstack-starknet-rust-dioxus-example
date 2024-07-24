@@ -16,7 +16,9 @@ pub fn Eth() -> Element {
                 let functions = value.functions.clone();
                 let copy_functions = use_signal(|| functions.clone());
                 let contract_address = use_signal(|| value.address.clone());
-                rsx! {
+                let mut error_message = use_signal(|| "".to_string());
+
+            rsx! {
                     div {
                      class: "space-y-4 justify-center",
                          h1 { "{value.address}" }
@@ -34,10 +36,24 @@ pub fn Eth() -> Element {
                                                 onclick: move |_| async move{
                                                     let clone = copy_functions.read()[index].clone();
                                                     let contract_address = contract_address.read().clone();
-                                                    call_read_function(clone.name,contract_address).await;
+                                                    let response = call_read_function(clone.name,contract_address).await;
+                                                    match response {
+                                                        Ok(value) => {
+                                                            //set from value to the error message
+                                                            // vec to string
+                                                            let value = "jell";
+                                                            error_message.set(value.to_string());
+                                                        },
+                                                        Err(e) => {
+                                                            // Display the error message
+                                                            error_message.set(e.to_string());
+                                                        }
+                                                    }
+
                                                 },
                                                 "{func.name}"
                                             }
+                                            p{ "{error_message.read()}" } // Display the error message
                                             p{
                                                 // border class
                                                 class: "border-2 border-gray-100",

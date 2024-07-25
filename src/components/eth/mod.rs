@@ -13,11 +13,11 @@ pub fn Eth() -> Element {
     match contracts {
         // two tab for functions and state changing functions
         Some(Ok(value)) => {
-                let functions = value.functions.clone();
-                let copy_functions = use_signal(|| functions.clone());
-                let contract_address = use_signal(|| value.address.clone());
-                let mut error_message = use_signal(|| "".to_string());
-
+            let functions = value.functions.clone();
+            let copy_functions = use_signal(|| functions.clone());
+            let contract_address = use_signal(|| value.address.clone());
+            //let mut error_messages = use_signal(|| Vec::<String>::new());
+            let mut error_messages = use_signal(|| vec!["".to_string(); functions.len()]);
             rsx! {
                     div {
                      class: "space-y-4 justify-center",
@@ -39,21 +39,24 @@ pub fn Eth() -> Element {
                                                     let response = call_read_function(clone.name,contract_address).await;
                                                     match response {
                                                         Ok(value) => {
-                                                            //set from value to the error message
-                                                            // vec to string
-                                                            let value = "jell";
-                                                            error_message.set(value.to_string());
+                                                            //error_message.set(value.to_string());
+                                                            let mut array = error_messages.read().clone();
+                                                            // index push
+                                                            array[index] = value.to_string();
+                                                            error_messages.set(array);
                                                         },
                                                         Err(e) => {
                                                             // Display the error message
-                                                            error_message.set(e.to_string());
+                                                            let mut array = error_messages.read().clone();
+                                                            // index push
+                                                            array[index] = e.to_string();
+                                                            error_messages.set(array);
                                                         }
                                                     }
-
                                                 },
                                                 "{func.name}"
                                             }
-                                            p{ "{error_message.read()}" } // Display the error message
+                                            p{ "{error_messages.read()[index]}" } // Display the error message
                                             p{
                                                 // border class
                                                 class: "border-2 border-gray-100",

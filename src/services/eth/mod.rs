@@ -21,7 +21,7 @@ pub async fn get_server_data() -> Result<Contract, ServerFnError> {
 
 
 #[server]
-pub async fn call_read_function(my_selector: String, contract_address: String) -> Result<Vec<FieldElement>, ServerFnError>{
+pub async fn call_read_function(my_selector: String, contract_address: String) -> Result<String, ServerFnError>{
     info!("call_read_function selector: {}, contract_address: {}", my_selector, contract_address);
     // call the read contract function
     let contract_address = FieldElement::from_hex_be(&contract_address)
@@ -29,6 +29,7 @@ pub async fn call_read_function(my_selector: String, contract_address: String) -
     // change my_select string to hex in rust
 
     let response = call_contract_read_function(create_jsonrpc_client(Network::Testnet), contract_address, my_selector,vec![]).await;
+    let response = serde_json::to_string(&response).map_err(|err| ServerFnError::new(err.to_string()))?;
     return Ok(response);
     // dbg!(response);
     //

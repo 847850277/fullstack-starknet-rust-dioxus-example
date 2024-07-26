@@ -12,6 +12,8 @@ use components::{Home, Login, NavBar, Tickets};
 use route::Route;
 
 
+
+
 fn main() {
     //wasm_logger::init(wasm_logger::Config::default());
     //dioxus_logger::init(Level::DEBUG).expect("failed to init logger");

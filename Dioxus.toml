@@ -39,5 +39,5 @@ script = []
 [web.resource.dev]
 
 # Javascript code file
-# serve: [dev-server] only
+# serve: [dev-server_config] only
 script = []

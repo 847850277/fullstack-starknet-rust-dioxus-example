@@ -32,7 +32,7 @@ edition = "2021"
 #
 #[features]
 #default = []
-#server = ["dioxus/axum"]
+#server_config = ["dioxus/axum"]
 #web = ["dioxus/web"]
 
 

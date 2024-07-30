@@ -2,17 +2,17 @@
 use dioxus::prelude::*;
 use serde::{Deserialize, Serialize};
 
-mod components;
+mod views;
 mod route;
 mod services;
-mod my_starknet;
+mod starknet_wrapper;
 
-use components::{Home, Login, NavBar, Tickets};
+use views::{Home, Login, NavBar, Tickets};
 
 use route::Route;
 
 #[cfg(feature = "server")]
-mod server;
+mod server_config;
 
 fn main() {
     //wasm_logger::init(wasm_logger::Config::default());
@@ -21,11 +21,11 @@ fn main() {
     #[cfg(feature = "web")]
     tracing_wasm::set_as_global_default();
 
-    // #[cfg(feature = "server")]
+    // #[cfg(feature = "server_config")]
     // tracing_subscriber::fmt::init();
 
     #[cfg(feature = "server")]
-    server::start::start(App);
+    server_config::start::start(App);
 
     launch(App);
 
@@ -42,10 +42,3 @@ fn App() -> Element {
     }
 }
 
-
-
-#[server]
-pub async fn login(username: String, password: String) -> Result<i64, ServerFnError> {
-
-    Ok(1)
-}

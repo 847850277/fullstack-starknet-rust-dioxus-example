@@ -1,12 +1,12 @@
 use dioxus::prelude::*;
 use serde::{Deserialize, Serialize};
 
-use super::components::home::Home;
-use super::components::tickets::Tickets;
-use super::components::login::Login;
-use super::components::eth::Eth;
-use super::components::navbar::NavBar;
-use super::components::page_not_found::PageNotFound;
+use super::views::home::Home;
+use super::views::tickets::Tickets;
+use super::views::login::Login;
+use super::views::eth::Eth;
+use super::views::navbar::NavBar;
+use super::views::page_not_found::PageNotFound;
 
 
 

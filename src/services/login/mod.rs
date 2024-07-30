@@ -33,11 +33,7 @@ pub async fn login_page(address: String, private_key: String) -> Result<bool, Se
 
         Ok(nonce) => {
             //把账号和密码缓存
-            // let auth: crate::auth::Session = extract().await?;
-            // let decimal = nonce.to_big_decimal(0);
-            // let string = decimal.to_string();
-            // let id = string.parse().unwrap();
-            // auth.login_user(id);
+
             Ok(true)
         }
         Err(e) => {

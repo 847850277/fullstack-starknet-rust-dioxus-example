@@ -4,7 +4,7 @@ use starknet::core::utils::get_selector_from_name;
 use starknet::providers::{JsonRpcClient, Provider};
 use starknet::providers::jsonrpc::HttpTransport;
 
-use crate::my_starknet::provider;
+use crate::starknet_wrapper::provider;
 
 pub async fn call_contract_read_function(provider: JsonRpcClient<HttpTransport>, contract_address: FieldElement, selector: String, call_data: Vec<FieldElement>) -> Vec<FieldElement> {
     let call_result =

@@ -1,6 +1,6 @@
 use std::sync::Arc;
 use axum::Extension;
-use crate::server::logging::init_logging;
+use crate::server_config::logging::init_logging;
 
 use super::database::is_db_pool_ready;
 
@@ -29,7 +29,7 @@ pub fn start(app_fn: fn() -> Element) {
 
                     let state = ServerState(Arc::new(db_pool));
                     let web_api_router: Router<()> = Router::new()
-                        // Server side render the application, serve static assets, and register server functions.
+                        // Server side render the application, serve static assets, and register server_config functions.
                         .serve_dioxus_application(ServeConfig::builder().build(), move || {
                             VirtualDom::new(app_fn)
                         })

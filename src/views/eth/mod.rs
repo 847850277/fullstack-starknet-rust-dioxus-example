@@ -6,7 +6,7 @@ use crate::services::eth::*;
 
 #[component]
 pub fn Eth() -> Element {
-    //require_login!();
+    require_login!();
 
     let mut contracts_funcs = use_resource(move || async move {
         get_server_data().await

@@ -11,6 +11,8 @@ use components::{Home, Login, NavBar, Tickets};
 
 use route::Route;
 
+#[cfg(feature = "server")]
+mod server;
 
 fn main() {
     //wasm_logger::init(wasm_logger::Config::default());
@@ -19,10 +21,15 @@ fn main() {
     #[cfg(feature = "web")]
     tracing_wasm::set_as_global_default();
 
+    // #[cfg(feature = "server")]
+    // tracing_subscriber::fmt::init();
+
     #[cfg(feature = "server")]
-    tracing_subscriber::fmt::init();
+    server::start::start(App);
 
     launch(App);
+
+
 }
 
 fn App() -> Element {

@@ -1,71 +1,28 @@
 use std::{collections::HashMap, ops::Deref, sync::Mutex, time::Duration};
+use std::str::FromStr;
 
+use log::info;
 use once_cell::sync::Lazy;
-use serde::Deserialize;
-use sqlx::{postgres::PgPoolOptions, PgPool};
+use serde::{Deserialize, Serialize};
+use sqlx::{PgPool, postgres::PgPoolOptions};
+use sqlx::{sqlite::SqlitePoolOptions, SqlitePool};
+use sqlx::sqlite::SqliteConnectOptions;
 
-#[derive(Debug, Deserialize, Clone, Eq, Hash, PartialEq)]
-pub struct Book {
-    pub id: u32,
-    pub title: String,
-    pub author: String,
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct User {
+    pub id: i32,
+    pub security: String,
+    pub address: String,
 }
 
-// Display the book using the format "{title} by {author}".
-// This is a typical Rust trait and is not axum-specific.
-impl std::fmt::Display for Book {
-    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
-        write!(f, "{} by {}", self.title, self.author)
-    }
-}
 
-pub static MEMDB: Lazy<Mutex<HashMap<u32, Book>>> = Lazy::new(|| {
-    Mutex::new(HashMap::from([
-        (
-            1,
-            Book {
-                id: 1,
-                title: "Antigone".into(),
-                author: "Sophocles".into(),
-            },
-        ),
-        (
-            2,
-            Book {
-                id: 2,
-                title: "Beloved".into(),
-                author: "Toni Morrison".into(),
-            },
-        ),
-        (
-            3,
-            Book {
-                id: 3,
-                title: "Candide".into(),
-                author: "Voltaire".into(),
-            },
-        ),
-    ]))
-});
-
-// pub async fn init_db_pool() -> Result<PgPool, sqlx::Error> {
-//     log::info!("Initing the DB Pool ...");
-//     let pool = PgPoolOptions::new()
-//         .min_connections(1)
-//         .max_connections(3)
-//         .idle_timeout(Duration::from_secs(280))
-//         .connect("postgres://tmc:tmc@localhost:5442/tmc")
-//         .await?;
-//     Ok(pool)
-// }
-
-pub static DB: Lazy<PgPool> = Lazy::new(|| {
+pub static DB: Lazy<SqlitePool> = Lazy::new(|| {
     log::info!("Initing the DB Pool lazily ...");
-    let pool = PgPoolOptions::new()
+    let pool = SqlitePoolOptions::new()
         .min_connections(1)
         .max_connections(3)
         .idle_timeout(Duration::from_secs(280))
-        .connect_lazy("postgres://tmc:tmc@localhost:5442/tmc");
+        .connect_lazy("sqlite::memory:");
     match pool {
         Ok(pool) => {
             log::info!("DB Pool lazily inited.");
@@ -78,17 +35,43 @@ pub static DB: Lazy<PgPool> = Lazy::new(|| {
     }
 });
 
-pub async fn is_db_pool_ready() -> Result<(), String> {
+pub async fn is_db_pool_ready() -> Result<SqlitePool, String> {
     log::info!("DB Pool idle={} size={}", DB.num_idle(), DB.size());
-    let db_pool: &PgPool = DB.deref();
-    let row = sqlx::query("SELECT 1")
+    let db_pool: &SqlitePool = DB.deref();
+    let row = sqlx::query( r#"
+                CREATE TABLE IF NOT EXISTS users (
+                    "id" INTEGER PRIMARY KEY,
+                    "security" VARCHAR(256) NOT NULL,
+                    "address" VARCHAR(256) NOT NULL
+                )
+            "#,)
         .execute(db_pool)
         .await
-        .map_err(|err| err.to_string())?;
+        .map_err(|err| err.to_string());
 
-    if row.rows_affected() == 1 {
-        Ok(())
-    } else {
-        Err("DB Pool doesn't seem to be inited.".into())
+    match row {
+        Ok(row) => {
+            log::info!("create table users success.");
+
+            // insert rows to table users
+            let row = sqlx::query( r#"
+                INSERT INTO users (security, address) VALUES ('123456', '0x123456')
+            "#,).execute(db_pool).await.map_err(|err| err.to_string());
+            match row {
+                Ok(row) => {
+                    log::info!("insert rows to table users success.");
+                },
+                Err(err) => {
+                    log::error!("insert rows to table users failed: {}", err);
+                    return Err(err.to_string());
+                }
+            }
+
+            Ok(db_pool.clone())
+        },
+        Err(err) => {
+            log::error!("create table users failed: {}", err);
+            Err(err)
+        }
     }
 }

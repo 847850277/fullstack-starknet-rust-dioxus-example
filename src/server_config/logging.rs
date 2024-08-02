@@ -10,7 +10,7 @@ pub fn init_logging() {
         .with_module_level("axum_session_auth", LevelFilter::Error)
         .with_module_level("dioxus_core", LevelFilter::Warn)
         .with_module_level("dioxus_signals", LevelFilter::Info)
-        .with_module_level("tracing", LevelFilter::Warn)
+        .with_module_level("tracing", LevelFilter::Info)
         .init()
         .unwrap();
 

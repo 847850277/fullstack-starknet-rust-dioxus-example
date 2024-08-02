@@ -12,6 +12,24 @@ use starknet::providers::{JsonRpcClient, Provider};
 use starknet::providers::jsonrpc::HttpTransport;
 use starknet::signers::{LocalWallet, SigningKey};
 
+#[derive(Debug,serde::Deserialize,serde::Serialize)]
+pub struct User {
+    pub security: String,
+    pub address: String,
+}
+//new user
+impl User {
+    pub fn new(security: String, address: String) -> User {
+        User {
+            security,
+            address,
+        }
+    }
+}
+
+
+
+
 #[server]
 pub async fn login_page(address: String, private_key: String) -> Result<bool, ServerFnError> {
     use crate::server_config::session;
@@ -24,18 +42,17 @@ pub async fn login_page(address: String, private_key: String) -> Result<bool, Se
     let signer = LocalWallet::from(SigningKey::from_secret_scalar(
         FieldElement::from_hex_be(&private_key).unwrap(),
     ));
-    let address = FieldElement::from_hex_be(&address).unwrap();
+    let address_field_element = FieldElement::from_hex_be(&address).unwrap();
     //let address = felt!(&address);
 
-    let account = SingleOwnerAccount::new(provider, signer, address, chain_id, ExecutionEncoding::New);
+    let account = SingleOwnerAccount::new(provider, signer, address_field_element, chain_id, ExecutionEncoding::New);
     let account_1 = Arc::new(account);
     let result = account_1.get_nonce().await;
 
+    let session: session::Session = extract().await.unwrap();
     match result {
 
         Ok(nonce) => {
-
-            let session: session::Session = extract().await.unwrap();
             let dbp = session.dbp;
             // insert into table users
             let insert_sql = format!(r#"
@@ -45,6 +62,13 @@ pub async fn login_page(address: String, private_key: String) -> Result<bool, Se
                 .execute(dbp.deref())
                 .await
                 .map_err(|err| err.to_string());
+
+            let axum_session = session.axum_session;
+            log::debug!("axum_session: {:?}", axum_session);
+            let session_id = axum_session.get_session_id();
+            let session_id_str = session_id.to_string();
+            axum_session.set(&session_id_str, User::new(private_key, address));
+
             match row {
                 Ok(row) => {
                     return Ok(true);

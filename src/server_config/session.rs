@@ -1,9 +1,13 @@
 use axum::{async_trait, http};
+use axum_session_sqlx::SessionSqlitePool;
+use tracing::info;
 use crate::server_config::start::ServerState;
 
+#[derive(Debug)]
 pub struct Session {
     /// The database connection pool.
     pub dbp: std::sync::Arc<sqlx::Pool<sqlx::Sqlite>>,
+    pub axum_session: axum_session::Session<SessionSqlitePool>
 }
 
 #[async_trait]
@@ -20,7 +24,9 @@ where
         //
         let ss = parts.extensions.get::<ServerState>().unwrap();
         let dbp = ss.0.clone();
-        Ok(Session { dbp })
+        let axum_session = (*parts.extensions.get::<axum_session::Session<SessionSqlitePool>>().unwrap()).clone();
+        log::debug!("parts: {:?}", parts);
+        Ok(Session { dbp,axum_session })
     }
 }
 

@@ -4,6 +4,7 @@ use reqwest::Error;
 use serde_json::json;
 use tracing::info;
 use starknet::core::types::FieldElement;
+//use crate::server_config::session;
 use crate::starknet_wrapper::provider::{create_jsonrpc_client, Network};
 use crate::starknet_wrapper::contract::call_contract_read_function;
 
@@ -11,6 +12,11 @@ use crate::starknet_wrapper::contract::call_contract_read_function;
 
 #[server]
 pub async fn get_server_data() -> Result<Contract, ServerFnError> {
+    use crate::server_config::session;
+
+    let session: session::Session = extract().await.unwrap();
+    log::debug!("session: {:?}", session);
+
     let url = "https://sepolia.voyager.online/api/contract/0x049d36570d4e46f48e99674bd3fcc84644ddd6b96f7c741b1562b82f9e004dc7/functions";
     let response = reqwest::get(url).await.map_err(|err| ServerFnError::new(err.to_string()))?;
     let body = response.text().await.map_err(|err| ServerFnError::new(err.to_string()))?;
@@ -22,7 +28,12 @@ pub async fn get_server_data() -> Result<Contract, ServerFnError> {
 
 #[server]
 pub async fn call_read_function(my_selector: String, contract_address: String) -> Result<String, ServerFnError>{
+    use crate::server_config::session;
+
     info!("call_read_function selector: {}, contract_address: {}", my_selector, contract_address);
+    let session: session::Session = extract().await.unwrap();
+    log::debug!("session: {:?}", session);
+
     let contract_address = FieldElement::from_hex_be(&contract_address)
         .map_err(|err| ServerFnError::new(err.to_string()))?;
     let response = call_contract_read_function(create_jsonrpc_client(Network::Testnet), contract_address, my_selector,vec![]).await;

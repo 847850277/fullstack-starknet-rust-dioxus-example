@@ -16,8 +16,3 @@ Launch the Dioxus Fullstack app:
 ```bash
 dx serve --platform fullstack
 ```
-
-https://www.cnblogs.com/hujunzheng/p/9732936.html
-
-
-https://github.com/dxps/dioxus_playground/blob/main/fsrs-dioxus-axum-pgdb-lazy-init/

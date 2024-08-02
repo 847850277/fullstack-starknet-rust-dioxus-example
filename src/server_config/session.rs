@@ -3,6 +3,7 @@ use axum_session_sqlx::SessionSqlitePool;
 use tracing::info;
 use crate::server_config::start::ServerState;
 
+#[derive(Debug)]
 pub struct Session {
     /// The database connection pool.
     pub dbp: std::sync::Arc<sqlx::Pool<sqlx::Sqlite>>,

@@ -1,0 +1,9 @@
+0x0156c66218B0836d8d49096529BBA0E750Eb36377E5a98F99A70ee997296D36a
+
+0x025e5b9982a2c8e04cb477d7c71aec25e2043e4d52cb61604208e1939acfb8bf
+
+https://www.cnblogs.com/hujunzheng/p/9732936.html
+
+https://github.com/dxps/dioxus_playground/blob/main/fsrs-dioxus-axum-pgdb-lazy-init/
+
+https://github.com/dxps/dioxus_playground/tree/main/dioxus_axum_auth_pgdb

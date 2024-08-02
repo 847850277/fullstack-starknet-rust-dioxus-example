@@ -41,6 +41,8 @@ edition = "2021"
 
 axum = { version = "0.7.5", optional = true }
 axum-macros = { version = "0.4.1", optional = true }
+axum_session = { version = "0.14.0", optional = true }
+axum_session_sqlx = { version = "0.1.1",features = ["sqlite"] , optional = true }
 
 dioxus = { version = "0.5.1", features = ["fullstack", "router"] }
 dioxus-fullstack = { version = "0.5.2" }
@@ -83,6 +85,6 @@ tracing = "0.1.40"
 default = []
 server = [
     "axum", "axum-macros", "dioxus-fullstack/axum", "lazy_static", "simple_logger", "sqlx",
-    "tokio", "tower-http"
+    "tokio", "tower-http","axum_session", "axum_session_sqlx"
 ]
 web = [ "dioxus/web" ]

@@ -1,5 +1,6 @@
 use std::sync::Arc;
 use axum::Extension;
+use axum_session::SessionLayer;
 use crate::server_config::logging::init_logging;
 
 use super::database::is_db_pool_ready;
@@ -26,14 +27,25 @@ pub fn start(app_fn: fn() -> Element) {
 
                     use axum::Router;
                     use dioxus::prelude::*;
+                    use axum_session::SessionConfig;
+                    use axum_session::SessionStore;
+                    use axum_session_sqlx::SessionSqlitePool;
 
-                    let state = ServerState(Arc::new(db_pool));
+                    let state = ServerState(Arc::new(db_pool.clone()));
+
+                    let session_config = SessionConfig::default();
+                    let session_store =
+                        SessionStore::<SessionSqlitePool>::new(Some(db_pool.clone().into()), session_config)
+                            .await
+                            .unwrap();
+
                     let web_api_router: Router<()> = Router::new()
                         // Server side render the application, serve static assets, and register server_config functions.
                         .serve_dioxus_application(ServeConfig::builder().build(), move || {
                             VirtualDom::new(app_fn)
                         })
                         .await
+                        .layer(SessionLayer::new(session_store))
                         .layer(Extension(state));
 
                     let addr = std::net::SocketAddr::from(([127, 0, 0, 1], 3000));

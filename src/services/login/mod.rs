@@ -31,11 +31,16 @@ pub async fn login_page(address: String, private_key: String) -> Result<bool, Se
     let account_1 = Arc::new(account);
     let result = account_1.get_nonce().await;
 
+    //TODO get set
+    let session: session::Session = extract().await.unwrap();
+    let session_id = session.axum_session.get("session_id").unwrap_or(0);
+    log::debug!("session_id: {:?}", session_id);
+
     match result {
 
         Ok(nonce) => {
 
-            let session: session::Session = extract().await.unwrap();
+
             let dbp = session.dbp;
             // insert into table users
             let insert_sql = format!(r#"

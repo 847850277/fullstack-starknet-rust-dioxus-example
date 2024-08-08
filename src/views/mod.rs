@@ -1,7 +1,22 @@
+use crate::services::login::*;
+
 macro_rules! require_login {
     () => {
-        let logged_in = consume_context::<Signal<bool>>();
-        if !*logged_in.read()
+        let login_stats_result = use_resource(move || async move {
+            get_login_data().await
+        });
+        let login = login_stats_result.read_unchecked().clone();
+        let mut logged_in = false;
+        match login {
+            Some(Ok(value)) => {
+                logged_in = value;
+            }
+            _ => {
+                logged_in = false;
+            }
+        }
+
+        if !logged_in
         {
             return rsx!(
                 div {

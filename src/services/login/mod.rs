@@ -11,6 +11,8 @@ use starknet::core::types::FieldElement;
 use starknet::providers::{JsonRpcClient, Provider};
 use starknet::providers::jsonrpc::HttpTransport;
 use starknet::signers::{LocalWallet, SigningKey};
+use tracing::info;
+use crate::services::eth::Contract;
 
 #[derive(Debug,serde::Deserialize,serde::Serialize)]
 pub struct User {
@@ -28,6 +30,26 @@ impl User {
 }
 
 
+#[server]
+pub async fn get_login_data() -> Result<bool, ServerFnError> {
+    use crate::server_config::session;
+
+    let session: session::Session = extract().await.unwrap();
+    log::debug!("session: {:?}", session);
+    let axum_session = session.axum_session;
+    let session_id = axum_session.get_session_id();
+    let session_id_str = session_id.to_string();
+    let login = axum_session.get::<(bool, User)>(&session_id_str);
+    info!("login: {:?}", login);
+    match login {
+        Some((login, user)) => {
+            return Ok(login);
+        }
+        None => {
+            return Ok(false);
+        }
+    }
+}
 
 
 #[server]
@@ -67,7 +89,9 @@ pub async fn login_page(address: String, private_key: String) -> Result<bool, Se
             log::debug!("axum_session: {:?}", axum_session);
             let session_id = axum_session.get_session_id();
             let session_id_str = session_id.to_string();
-            axum_session.set(&session_id_str, User::new(private_key, address));
+            // session set tuple bool user
+            let login = (true, User::new(private_key, address));
+            axum_session.set(&session_id_str, login);
 
             match row {
                 Ok(row) => {

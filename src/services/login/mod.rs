@@ -56,6 +56,7 @@ pub async fn get_login_data() -> Result<bool, ServerFnError> {
 pub async fn login_page(address: String, private_key: String) -> Result<bool, ServerFnError> {
     use crate::server_config::session;
     use sqlx::Row;
+    use crate::starknet_wrapper::provider::Network;
 
     let provider = JsonRpcClient::new(HttpTransport::new(
         Url::parse("https://starknet-sepolia.reddio.com/rpc/v0_7").unwrap(),
@@ -92,6 +93,19 @@ pub async fn login_page(address: String, private_key: String) -> Result<bool, Se
             // session set tuple bool user
             let login = (true, User::new(private_key, address));
             axum_session.set(&session_id_str, login);
+
+            // if not network_key then set global network testnet
+            let network_key = session_id_str + "network";
+            let network: Option<Network> = axum_session.get(&network_key);
+            match network {
+                Some(_) => {
+                    return Ok(true);
+                }
+                None => {
+                    let network = Network::Testnet;
+                    axum_session.set(&network_key, network);
+                }
+            }
 
             match row {
                 Ok(row) => {

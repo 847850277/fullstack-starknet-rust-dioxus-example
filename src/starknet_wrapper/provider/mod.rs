@@ -1,3 +1,5 @@
+use std::fmt;
+use std::str::FromStr;
 use starknet::providers::jsonrpc::HttpTransport;
 use starknet::providers::{JsonRpcClient, Url};
 
@@ -19,10 +21,31 @@ pub fn create_jsonrpc_client(network: Network) -> JsonRpcClient<HttpTransport> {
 }
 
 
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, serde::Serialize, serde::Deserialize)]
 pub enum Network {
     Mainnet,
     Testnet,
+}
+
+impl FromStr for Network {
+    type Err = ();
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        match s {
+            "Mainnet" => Ok(Network::Mainnet),
+            "Testnet" => Ok(Network::Testnet),
+            _ => Err(()),
+        }
+    }
+}
+
+impl fmt::Display for Network {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        match *self {
+            Network::Mainnet => write!(f, "Mainnet"),
+            Network::Testnet => write!(f, "Testnet"),
+        }
+    }
 }
 
 // test

@@ -8,21 +8,39 @@ use starknet::core::types::FieldElement;
 use crate::starknet_wrapper::provider::{create_jsonrpc_client, Network};
 use crate::starknet_wrapper::contract::call_contract_read_function;
 
+pub static MAINNET_CONTRACT: &str = "0x049d36570d4e46f48e99674bd3fcc84644ddd6b96f7c741b1562b82f9e004dc7";
 
+//pub static MAINNET_CONTRACT: &str = "0x077c648eeda3db3935c1e6ed69b51a2c28d7addbead74b3166589a0d166aee5e";
+pub static TESTNET_CONTRACT: &str = "0x049d36570d4e46f48e99674bd3fcc84644ddd6b96f7c741b1562b82f9e004dc7";
+pub static MAINNET_BASE_URL: &str = "https://voyager.online/";
+
+pub static TESTNET_BASE_URL: &str = "https://sepolia.voyager.online/";
 
 #[server]
 pub async fn get_server_data() -> Result<Contract, ServerFnError> {
     use crate::server_config::session;
 
     let session: session::Session = extract().await.unwrap();
-    log::debug!("session: {:?}", session);
-
-    let url = "https://sepolia.voyager.online/api/contract/0x049d36570d4e46f48e99674bd3fcc84644ddd6b96f7c741b1562b82f9e004dc7/functions";
-    let response = reqwest::get(url).await.map_err(|err| ServerFnError::new(err.to_string()))?;
-    let body = response.text().await.map_err(|err| ServerFnError::new(err.to_string()))?;
-    let contract: Contract = serde_json::from_str(&body).map_err(|err| ServerFnError::new(err.to_string()))?;
-    println!("{:?}", contract);
-    Ok(contract)
+    info!("session: {:?}", session);
+    let network_key = session.axum_session.get_session_id().to_string() + "network";
+    let network: Network = session.axum_session.get(&network_key).unwrap();
+    info!("network: {:?}", network);
+    match network {
+        Network::Mainnet => {
+            let url = MAINNET_BASE_URL.to_string() + "api/contract/" + MAINNET_CONTRACT + "/functions";
+            let response = reqwest::get(url).await.map_err(|err| ServerFnError::new(err.to_string()))?;
+            let body = response.text().await.map_err(|err| ServerFnError::new(err.to_string()))?;
+            let contract: Contract = serde_json::from_str(&body).map_err(|err| ServerFnError::new(err.to_string()))?;
+            return Ok(contract);
+        }
+        Network::Testnet => {
+            let url = TESTNET_BASE_URL.to_string() + "api/contract/" + TESTNET_CONTRACT + "/functions";
+            let response = reqwest::get(url).await.map_err(|err| ServerFnError::new(err.to_string()))?;
+            let body = response.text().await.map_err(|err| ServerFnError::new(err.to_string()))?;
+            let contract: Contract = serde_json::from_str(&body).map_err(|err| ServerFnError::new(err.to_string()))?;
+            return Ok(contract);
+        }
+    }
 }
 
 

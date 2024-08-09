@@ -21,7 +21,7 @@ pub fn create_jsonrpc_client(network: Network) -> JsonRpcClient<HttpTransport> {
 }
 
 
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, serde::Serialize, serde::Deserialize)]
 pub enum Network {
     Mainnet,
     Testnet,

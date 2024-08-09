@@ -33,6 +33,10 @@ pub async fn call_read_function(my_selector: String, contract_address: String) -
     info!("call_read_function selector: {}, contract_address: {}", my_selector, contract_address);
     let session: session::Session = extract().await.unwrap();
     log::debug!("session: {:?}", session);
+    let network_key = session.axum_session.get_session_id().to_string() + "network";
+    info!("network_key: {:?}", network_key);
+    let network: Network = session.axum_session.get(&network_key).unwrap();
+    info!("network: {:?}", network);
 
     let contract_address = FieldElement::from_hex_be(&contract_address)
         .map_err(|err| ServerFnError::new(err.to_string()))?;

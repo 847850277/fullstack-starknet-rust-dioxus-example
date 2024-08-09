@@ -1,11 +1,15 @@
 use crate::Route;
 use dioxus::prelude::*;
 use tracing::info;
+use crate::services::set_global_net_work;
 use crate::starknet_wrapper::provider::Network;
 
 #[component]
 pub fn NavBar() -> Element {
-    let mut net_work = use_signal(|| Network::Testnet);
+    //let mut net_work = use_signal(|| Network::Testnet);
+    // use_resource(move || async move {
+    //     set_global_net_work(Network::Testnet).await
+    // });
 
     rsx! {
         div {
@@ -36,20 +40,22 @@ pub fn NavBar() -> Element {
                             class: "bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded",
                             id: "network_config",
                             oninput: move |evt| {
-                                // info!("Network changed to: {:?}", evt.value());
-                                net_work.set(evt.value().parse().unwrap());
+                                let net_work: Network = evt.value().parse().unwrap();
+                                 use_resource(move || async move {
+                                    set_global_net_work(net_work).await
+                                });
                             },
-                            option {
-                                value: "Mainnet",
-                                "Mainnet"
-                            }
+                            // onchange: change_net_work,
                             option {
                                 value: "Testnet",
                                 "Testnet"
                             }
+                            option {
+                                value: "Mainnet",
+                                "Mainnet"
+                            }
                         }
                     }
-                    p{ "{net_work.read()}" }
                 }
             }
             Outlet::<Route> {}

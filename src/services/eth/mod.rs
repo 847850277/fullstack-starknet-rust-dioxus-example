@@ -58,7 +58,7 @@ pub async fn call_read_function(my_selector: String, contract_address: String) -
 
     let contract_address = FieldElement::from_hex_be(&contract_address)
         .map_err(|err| ServerFnError::new(err.to_string()))?;
-    let response = call_contract_read_function(create_jsonrpc_client(Network::Testnet), contract_address, my_selector,vec![]).await;
+    let response = call_contract_read_function(create_jsonrpc_client(network), contract_address, my_selector,vec![]).await;
     let response = serde_json::to_string(&response).map_err(|err| ServerFnError::new(err.to_string()))?;
     return Ok(response);
 }

@@ -7,9 +7,9 @@ use crate::starknet_wrapper::provider::Network;
 #[component]
 pub fn NavBar() -> Element {
     //let mut net_work = use_signal(|| Network::Testnet);
-    // use_resource(move || async move {
-    //     set_global_net_work(Network::Testnet).await
-    // });
+    use_resource(move || async move {
+        set_global_net_work(Network::Testnet).await
+    });
 
     rsx! {
         div {

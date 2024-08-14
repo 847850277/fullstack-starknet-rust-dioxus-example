@@ -1,3 +1,4 @@
+use std::collections::HashMap;
 use dioxus::prelude::*;
 use serde::{Deserialize, Serialize};
 use reqwest::Error;
@@ -62,6 +63,19 @@ pub async fn call_read_function(my_selector: String, contract_address: String) -
     let response = serde_json::to_string(&response).map_err(|err| ServerFnError::new(err.to_string()))?;
     return Ok(response);
 }
+
+
+#[server]
+pub async fn call_write_function(my_selector: String, contract_address: String,param : HashMap<String,String>) -> Result<String, ServerFnError>{
+    info!("call_write_function selector: {}, contract_address: {}", my_selector, contract_address);
+    info!("param: {:?}", param);
+    let response = json!({
+        "status": "success",
+        "message": "write function called"
+    });
+    return Ok(response.to_string());
+}
+
 
 
 #[derive(Debug, Serialize, Deserialize,Clone)]

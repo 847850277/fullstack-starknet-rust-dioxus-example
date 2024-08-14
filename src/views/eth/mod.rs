@@ -24,6 +24,7 @@ pub fn Eth() -> Element {
             //let mut error_messages = use_signal(|| Vec::<String>::new());
             let mut error_messages = use_signal(|| vec!["".to_string(); functions.len()]);
             let my_state_changing_functions = value.state_changing_functions.clone().unwrap_or_default();
+            let my_state_changing_functions_copy = use_signal(|| my_state_changing_functions.clone());
             let mut show_parameters = use_signal(|| vec![HashMap::<String, String>::new(); my_state_changing_functions.len()]);
             rsx! {
                     div {
@@ -85,8 +86,6 @@ pub fn Eth() -> Element {
                                         }
                                         for (i,parameter) in func.parameters.iter().enumerate() {
                                             div{
-                                                class: "space-y-4 w-2/5",
-                                                form {
                                                     class: "space-y-4 justify-center ",
                                                     br{},
                                                     input {
@@ -96,8 +95,9 @@ pub fn Eth() -> Element {
                                                         oninput: move |text| {
                                                             let mut array = show_parameters.read().clone();
                                                             // index push
-                                                            //let key = parameter.name.as_str();
-                                                            let key = "123".to_string();
+                                                            let my_state_changing_functions_copy = my_state_changing_functions_copy.read().clone();
+                                                            let key = my_state_changing_functions_copy[index].parameters[i].name.clone();
+                                                            //let key = "123".to_string();
                                                             let value = text.value();
                                                             array[index].insert(key, value);
                                                             show_parameters.set(array);
@@ -108,31 +108,31 @@ pub fn Eth() -> Element {
                                                         br {}
                                                         button {
                                                             class: "bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded",
-                                                            onclick: move |_| async move {
-                                                                //let clone = copy_functions.read()[index].clone();
-                                                                // let contract_address = contract_address.read().clone();
-                                                                // let response = call_write_function(func.name,contract_address).await;
-                                                                // match response {
-                                                                //     Ok(value) => {
-                                                                //         //error_message.set(value.to_string());
-                                                                //         let mut array = error_messages.read().clone();
-                                                                //         // index push
-                                                                //         array[index] = value.to_string();
-                                                                //         error_messages.set(array);
-                                                                //     },
-                                                                //     Err(e) => {
-                                                                //         // Display the error message
-                                                                //         let mut array = error_messages.read().clone();
-                                                                //         // index push
-                                                                //         array[index] = e.to_string();
-                                                                //         error_messages.set(array);
-                                                                //     }
-                                                                // }
+                                                            onclick: move |_| async move{
+                                                                let clone = my_state_changing_functions_copy.read()[index].clone();
+                                                                let contract_address = contract_address.read().clone();
+                                                                let param =  show_parameters.read().clone().get(index).unwrap().clone();
+                                                                let response = call_write_function(clone.name,contract_address,param).await;
+                                                                match response {
+                                                                    Ok(value) => {
+                                                                        //error_message.set(value.to_string());
+                                                                        let mut array = error_messages.read().clone();
+                                                                        // index push
+                                                                        array[index] = value.to_string();
+                                                                        error_messages.set(array);
+                                                                    },
+                                                                    Err(e) => {
+                                                                        // Display the error message
+                                                                        let mut array = error_messages.read().clone();
+                                                                        // index push
+                                                                        array[index] = e.to_string();
+                                                                        error_messages.set(array);
+                                                                    }
+                                                                }
                                                             },
                                                             "call write function"
                                                         }
                                                     }
-                                                }
                                             }
                                         }
                                         hr{}

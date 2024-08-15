@@ -9,7 +9,7 @@ use std::collections::HashMap;
 
 #[component]
 pub fn Eth() -> Element {
-    //require_login!();
+    require_login!();
 
     let mut contracts_funcs = use_resource(move || async move {
         get_server_data().await
@@ -97,7 +97,6 @@ pub fn Eth() -> Element {
                                                             // index push
                                                             let my_state_changing_functions_copy = my_state_changing_functions_copy.read().clone();
                                                             let key = my_state_changing_functions_copy[index].parameters[i].name.clone();
-                                                            //let key = "123".to_string();
                                                             let value = text.value();
                                                             array[index].insert(key, value);
                                                             show_parameters.set(array);
@@ -111,7 +110,7 @@ pub fn Eth() -> Element {
                                                             onclick: move |_| async move{
                                                                 let clone = my_state_changing_functions_copy.read()[index].clone();
                                                                 let contract_address = contract_address.read().clone();
-                                                                let param =  show_parameters.read().clone().get(index).unwrap().clone();
+                                                                let param =  show_parameters.read().get(index).unwrap().clone();
                                                                 let response = call_write_function(clone.name,contract_address,param).await;
                                                                 match response {
                                                                     Ok(value) => {

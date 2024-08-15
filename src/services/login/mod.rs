@@ -19,6 +19,8 @@ pub struct User {
     pub security: String,
     pub address: String,
 }
+
+
 //new user
 impl User {
     pub fn new(security: String, address: String) -> User {
@@ -37,6 +39,7 @@ pub async fn get_login_data() -> Result<bool, ServerFnError> {
     let session: session::Session = extract().await.unwrap();
     log::debug!("session: {:?}", session);
     let axum_session = session.axum_session;
+
     let session_id = axum_session.get_session_id();
     let session_id_str = session_id.to_string();
     let login = axum_session.get::<(bool, User)>(&session_id_str);

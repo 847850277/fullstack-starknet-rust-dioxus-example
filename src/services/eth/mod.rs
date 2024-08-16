@@ -48,7 +48,7 @@ pub async fn get_server_data() -> Result<Contract, ServerFnError> {
 #[server]
 pub async fn call_read_function(my_selector: String, contract_address: String) -> Result<String, ServerFnError>{
     use crate::server_config::session;
-    use crate::server_config::database::User;
+    use crate::services::login::User;
 
     info!("call_read_function selector: {}, contract_address: {}", my_selector, contract_address);
     let session: session::Session = extract().await.unwrap();
@@ -60,8 +60,12 @@ pub async fn call_read_function(my_selector: String, contract_address: String) -
     let session_id_str = session.axum_session.get_session_id().to_string();
     info!("session_id: {:?}", session_id_str);
     let axum_session = session.axum_session;
-    let login = axum_session.get::<(bool, User)>(&session_id_str);
+    info!("axum_session: {:?}", axum_session);
+    let login:Option<User> = axum_session.get(&session_id_str);
     info!("login: {:?}", login);
+    let session_store = axum_session.get_store();
+    info!("session_store: {:?}", session_store);
+
 
     let contract_address = FieldElement::from_hex_be(&contract_address)
         .map_err(|err| ServerFnError::new(err.to_string()))?;
@@ -74,7 +78,7 @@ pub async fn call_read_function(my_selector: String, contract_address: String) -
 #[server]
 pub async fn call_write_function(my_selector: String, contract_address: String,param : HashMap<String,String>) -> Result<String, ServerFnError>{
     use crate::server_config::session;
-    //use crate::server_config::database::User;
+    use crate::services::login::User;
     use starknet::providers::Provider;
     use starknet::accounts::{Account, Call, ExecutionEncoding, SingleOwnerAccount};
     use starknet::signers::{LocalWallet, SigningKey};
@@ -96,10 +100,9 @@ pub async fn call_write_function(my_selector: String, contract_address: String,p
     let contract_address = FieldElement::from_hex_be(&contract_address)
         .map_err(|err| ServerFnError::new(err.to_string()))?;
     let provider = create_jsonrpc_client(network);
-    //let login = session.axum_session.get::<(bool, User)>(&session_id);
-    //info!("login: {:?}", login);
-    let private_key = "123";
-    let address = "345";
+    let login:Option<User> = session.axum_session.get(&session_id);
+    let private_key = login.clone().unwrap().security;
+    let address = login.clone().unwrap().address;
     let address = FieldElement::from_hex_be(&address).unwrap();
     let chain_id = provider.chain_id().await.unwrap();
     let signer = LocalWallet::from(SigningKey::from_secret_scalar(
@@ -117,8 +120,8 @@ pub async fn call_write_function(my_selector: String, contract_address: String,p
         calldata: vec![account_2_address, high, low],
     }]).send().await.unwrap();
     // transfer_response to string
-    let response = "";
-    let response = serde_json::to_string(&response).map_err(|err| ServerFnError::new(err.to_string()))?;
+    //let response = transfer_response.to_string();
+    let response = serde_json::to_string(&transfer_response).map_err(|err| ServerFnError::new(err.to_string()))?;
     return Ok(response);
 }
 

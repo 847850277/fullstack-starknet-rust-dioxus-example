@@ -20,6 +20,5 @@ pub async fn call_contract_read_function(provider: JsonRpcClient<HttpTransport>,
             .await
             .expect("failed to call contract");
 
-    //dbg!(call_result);
     return call_result;
 }

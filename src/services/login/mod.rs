@@ -14,17 +14,20 @@ use starknet::signers::{LocalWallet, SigningKey};
 use tracing::info;
 use crate::services::eth::Contract;
 
-#[derive(Debug,serde::Deserialize,serde::Serialize)]
+#[derive(Debug,Clone,serde::Deserialize,serde::Serialize)]
 pub struct User {
     pub security: String,
     pub address: String,
+    pub login: bool,
 }
+
 //new user
 impl User {
-    pub fn new(security: String, address: String) -> User {
+    pub fn new(security: String, address: String, login: bool) -> User {
         User {
             security,
             address,
+            login,
         }
     }
 }
@@ -37,13 +40,16 @@ pub async fn get_login_data() -> Result<bool, ServerFnError> {
     let session: session::Session = extract().await.unwrap();
     log::debug!("session: {:?}", session);
     let axum_session = session.axum_session;
+
     let session_id = axum_session.get_session_id();
     let session_id_str = session_id.to_string();
-    let login = axum_session.get::<(bool, User)>(&session_id_str);
+    let login:Option<User> = axum_session.get(&session_id_str);
     info!("login: {:?}", login);
+    let session_store = axum_session.get_store();
+    info!("session_store: {:?}", session_store);
     match login {
-        Some((login, user)) => {
-            return Ok(login);
+        Some(user) => {
+            return Ok(user.login);
         }
         None => {
             return Ok(false);
@@ -91,7 +97,7 @@ pub async fn login_page(address: String, private_key: String) -> Result<bool, Se
             let session_id = axum_session.get_session_id();
             let session_id_str = session_id.to_string();
             // session set tuple bool user
-            let login = (true, User::new(private_key, address));
+            let login = User::new(private_key, address,true);
             axum_session.set(&session_id_str, login);
 
             // if not network_key then set global network testnet
